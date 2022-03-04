@@ -1,0 +1,35 @@
+ apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fullstacks-nginx-ha
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: fullstacks-nginx-ha
+  template:
+    metadata:
+      labels:
+        app: fullstacks-nginx-ha
+    spec:
+      affinity:
+       podAntiAffinity:
+         preferredDuringSchedulingIgnoredDuringExecution:
+         - weight: 100
+           podAffinityTerm:
+             labelSelector:
+               matchExpressions:
+               - key: app
+                 operator: In
+                 values:
+                 - fullstacks-nginx-ha
+             topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: fullstacks-nginx-ha
+        image: nginx:latest
+        resources:
+          limits:
+            memory: 256Mi
+            cpu: "500m"
+        ports:
+        - containerPort: 80
